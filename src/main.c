@@ -1,18 +1,19 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <stdlib.h>
 
 #include "usart/usart.h"
 
+unsigned volatile int cont;
+
 ISR (INT0_vect){
-    USART_send('P');
-    USART_send('\n');
+    cont++;
 }
 
 int main(void){
-    char string[] = "Oi Mundo\n";
-    char response[5];
-
+    char string[5];
+    cont = 0;
     cli();                    // Disable interrupts
     USART_init();
     DDRB = 0xFF;
@@ -22,20 +23,20 @@ int main(void){
     EICRA |= (1 << ISC00) | (1 << ISC01);    // set INT0 to trigger on ANY logic change
     EIMSK |= (1 << INT0);     // Turns on INT0
 
-    sei();                    // turn on interrupts
-
     PORTB = 0;
 
-    while(1)
-    {
+    for (int cont = 0; cont < 1000; cont++) {
+        utoa(cont, string, 10);
         USART_putString(string);
-        USART_getString(response);
-        _delay_ms(1000);
-        USART_putString(response);
+        USART_putString("\n");
+    }
 
-        if(response[0] == 'O' && response[1] == 'K')
-            PORTB ^= _BV(5);
-
-        //_delay_ms(5000);
+    sei(); // Enable interrups
+    while(1) {
+        _delay_ms(5000);
+        utoa(cont, string, 9);
+        USART_putString(string);
+        USART_putString("\n");
+        //cont = 0;
     }
 }

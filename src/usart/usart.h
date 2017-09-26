@@ -2,7 +2,7 @@
 #define USART_H_
 
 #define FOSC 16000000 // Clock Speed
-#define BAUD 19200     // Baudhate
+#define BAUD 115200     // Baudhate
 #define MYUBRR (FOSC/8/BAUD-1) // Baudhate prescaller
 
 // Initialization of registeres
