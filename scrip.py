@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 """
     This scrip promps for two values via serial portt hen sends to a webserver
-    via a API RESTful. The port, baudhate and motor id are givem by the
+    via a API RESTful. The port, baudrate and motor id are givem by the
     user via comand line
 """
 # Serial port communication library
@@ -24,7 +24,8 @@ pulsesPerTurn = 4
 parser = argparse.ArgumentParser()
 parser.add_argument('port', help='The serial port to communicate.')
 parser.add_argument('motor', help='The motor\'s that is in test.' )
-parser.add_argument('baud', help='Baudhate in the serial port to communicate.')
+parser.add_argument('baud', help='Baudrate in the serial port to communicate.')
+parser.add_argument('voltage', help='Voltage in the motor')
 
 args = parser.parse_args()
 
@@ -37,33 +38,29 @@ headers = {
     'cache-control': "no-cache",
     }
 
-params = urllib.urlencode({
-    'motor_number': args.motor,
-    'rpm_indutivo': '1',
-    'rpm_optico': '1',
-    'voltage': '0'
-    })
 
 while True:
     sensor = ser.readline().rstrip()
     value  = ser.readline().rstrip()
-    print "Received. sensor: ", sensor, ", value = ", value
+    inductiveRPM = 3 * int(value)
 
-    inductiveRPM = (value) / (12 * 60)
+    print "Received. sensor: ", sensor, ", value = ", value, ", RPM = ", str(inductiveRPM)
 
     sensor = ser.readline().rstrip()
     value  = ser.readline().rstrip()
-    print "Received. sensor: ", sensor, ", value = ", value
+    opticRPM = 3 * int(value)
 
-    opticRPM = (value) / (12 * 60)
+    print "Received. sensor: ", sensor, ", value = ", value, ", RPM = ", str(opticRPM)
 
-    # conn.request("POST", POSTUrl, params, headers)
-    # results = conn.getresponse()
-    # print "Request status: ", results.status, results.reason
-    # conn.close()
-    #
-    # while int(results.status) != 200:
-    #     conn.request("POST", POSTUrl, params, headers)
-    #     results = conn.getresponse()
-    #     print "Request status: ", results.status, results.reason
-    #     conn.close()
+    params = urllib.urlencode({
+        'motor_number': args.motor,
+        'rpm_indutivo': str(inductiveRPM),
+        'rpm_optico': str(opticRPM),
+        'voltage': args.voltage
+        })
+
+    if (inductiveRPM != 0) and (opticRPM != 0) :
+        conn.request("POST", POSTUrl, params, headers)
+        results = conn.getresponse()
+        print "Request status: ", results.status, results.reason
+        conn.close()

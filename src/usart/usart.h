@@ -2,8 +2,8 @@
 #define USART_H_
 
 #define FOSC 16000000 // Clock Speed
-#define BAUD 115200     // Baudhate
-#define MYUBRR (FOSC/8/BAUD-1) // Baudhate prescaller
+#define BAUD 115200     // baudrate
+#define MYUBRR (FOSC/8/BAUD-1) // Baudrate prescaller
 
 // Initialization of registeres
 void USART_init();
